@@ -1,0 +1,7 @@
+app = "applicationbot"
+
+[build]
+
+
+[processes]
+  app = "python bot.py"
