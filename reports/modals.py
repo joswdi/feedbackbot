@@ -19,17 +19,7 @@ class ReportModal(discord.ui.Modal, title="Подать жалобу"):
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            print(f"🔍 [DEBUG] Начало обработки модалки")
-            print(f"🔍 [DEBUG] Пользователь: {interaction.user} ({interaction.user.id})")
-            print(f"🔍 [DEBUG] Целевой пользователь: {self.target_user} ({self.target_user.id})")
-            print(f"🔍 [DEBUG] Текст жалобы: {self.report_description_input.value}")
-            
-            # Проверяем данные перед сохранением
-            if not self.report_description_input.value.strip():
-                await interaction.response.send_message("❌ Текст жалобы не может быть пустым!", ephemeral=True)
-                return
-            
-            print(f"🔍 [DEBUG] Сохранение в БД...")
+            print(f"🔍 [DEBUG] Начало обработки жалобы...")
             
             # Сохраняем в базу данных
             report = create_report(
@@ -40,20 +30,16 @@ class ReportModal(discord.ui.Modal, title="Подать жалобу"):
                 report_description=self.report_description_input.value
             )
             
-            print(f"🔍 [DEBUG] Жалоба сохранена, ID: {report.id if report else 'NONE'}")
-            
-            if not report:
-                await interaction.response.send_message("❌ Ошибка сохранения жалобы в базу", ephemeral=True)
-                return
-            
-            print(f"🔍 [DEBUG] Канал модерации ID: {REPORT_CHANNEL_ID}")
+            print(f"🔍 [DEBUG] Жалоба сохранена с ID: {report.id}")
             
             # Отправляем в канал модерации
+            print(f"🔍 [DEBUG] ID канала модерации: {REPORT_CHANNEL_ID}")
             mod_channel = self.bot.get_channel(int(REPORT_CHANNEL_ID))
             print(f"🔍 [DEBUG] Найденный канал: {mod_channel}")
             
             if mod_channel:
-                print(f"🔍 [DEBUG] Создание embed...")
+                print(f"🔍 [DEBUG] Создаем embed и view...")
+                
                 embed = discord.Embed(
                     title="📝 Новая жалоба",
                     description=self.report_description_input.value,
@@ -64,7 +50,6 @@ class ReportModal(discord.ui.Modal, title="Подать жалобу"):
                 embed.add_field(name="👤 На кого", value=f"{self.target_user.mention}", inline=True)
                 embed.set_footer(text=f"ID: {report.id} • Ожидание модерации")
                 
-                print(f"🔍 [DEBUG] Создание view...")
                 view = ReportModerationView(
                    report_id=report.id,
                    bot=self.bot,
@@ -72,34 +57,28 @@ class ReportModal(discord.ui.Modal, title="Подать жалобу"):
                    target_user_name=self.target_user.display_name
                 )
                 
-                print(f"🔍 [DEBUG] Отправка в канал...")
-                await mod_channel.send(embed=embed, view=view)
-                print(f"🔍 [DEBUG] Сообщение отправлено в канал")
+                print(f"🔍 [DEBUG] Пытаемся отправить сообщение в канал...")
+                message = await mod_channel.send(embed=embed, view=view)
+                print(f"🔍 [DEBUG] Сообщение отправлено! ID: {message.id}")
+            else:
+                print(f"❌ [ERROR] Канал не найден! ID: {REPORT_CHANNEL_ID}")
             
-            print(f"🔍 [DEBUG] Отправка ответа пользователю...")
-            await interaction.response.send_message(
+            # Используем followup.send() вместо response.send_message()
+            await interaction.followup.send(
                 f"✅ Ваша жалоба на {self.target_user.mention} отправлена на модерацию!",
                 ephemeral=True,
                 delete_after=10
             )
-            print(f"🔍 [DEBUG] Успешно завершено!")
+            print(f"🔍 [DEBUG] Ответ пользователю отправлен")
             
         except Exception as e:
-            print(f"❌ [ERROR] Критическая ошибка в модалке: {e}")
-            print(f"❌ [ERROR] Тип ошибки: {type(e)}")
+            print(f"❌ [ERROR] Ошибка в модалке: {e}")
             import traceback
             traceback.print_exc()
             
-            try:
-                await interaction.response.send_message(
-                    f"❌ Произошла ошибка при отправке жалобы. Попробуйте позже.",
-                    ephemeral=True,
-                    delete_after=10
-                )
-            except:
-                # Если уже ответили
-                await interaction.followup.send(
-                    "❌ Произошла ошибка при отправке жалобы",
-                    ephemeral=True,
-                    delete_after=10
-                )
+            # Для ошибок тоже используем followup
+            await interaction.followup.send(
+                "❌ Произошла ошибка при отправке жалобы",
+                ephemeral=True,
+                delete_after=10
+            )
