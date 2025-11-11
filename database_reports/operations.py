@@ -28,7 +28,7 @@ def create_report(user_id, user_name, target_user_id, target_user_name, report_d
             user_name=user_name,
             target_user_id=target_user_id,
             target_user_name=target_user_name,
-            report_discription=report_description,
+            report_description=report_description,
             status=Report.PENDING
         )
         session.add(report)
