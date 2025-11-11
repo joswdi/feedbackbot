@@ -5,6 +5,8 @@ from database_reports.operations import get_report_stats, reset_all_reports
 
 def setup_report_commands(bot):
     """Регистрация команд для системы жалоб"""
+    from .views import ReportModerationView
+    bot.add_view(ReportModerationView(report_id=0, bot=bot, target_user_id=0, target_user_name=""))
 
     # Основная команда для подачи жалобы
     @bot.tree.command(name="report_user", description="Подать жалобу")
@@ -47,7 +49,7 @@ def setup_report_commands(bot):
         embed.add_field(name="✅ Принято", value=stats['approved'], inline=True)
         embed.add_field(name="❌ Отклонено", value=stats['rejected'], inline=True)
     
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=embed, ephemeral=False)
 
     @bot.tree.command(name='report_reset', description="Полностью очистить все жалобы из базы данных")
     async def report_reset_slash(interaction: discord.Interaction):
@@ -103,7 +105,7 @@ def setup_report_commands(bot):
                 inline=False
             )
         
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=embed, ephemeral=False)
         session.close()
 
     @bot.tree.command(name='report_help', description="Показать справку по командам жалоб")
