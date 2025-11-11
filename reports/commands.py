@@ -7,26 +7,12 @@ def setup_report_commands(bot):
     """Регистрация команд для системы жалоб"""
 
     # Основная команда для подачи жалобы
-    @bot.tree.command(name="report_user", description="Подать жалобу")
-    @app_commands.describe(
-        user="Пользователь, на которого подается жалоба"
-    )
+    @bot.tree.command(name="report", description="Подать жалобу")
+    @app_commands.describe(user="Пользователь, на которого подается жалоба")
     async def report_slash(interaction: discord.Interaction, user: discord.User):
         """Вызывает модальное окно для жалобы"""
-        print(f"🔍 Команда /report_user вызвана на пользователя {user}")
-        try:
-            modal = ReportModal(target_user=user, bot=bot)
-            await interaction.response.send_modal(modal)
-            print(f"🔍 Модальное окно отправлено")
-        except Exception as e:
-            print(f"❌ Ошибка: {e}")
-            import traceback
-            traceback.print_exc()
-            await interaction.response.send_message(
-                f"❌ Не удалось открыть форму. Жалоба на {user.mention}",
-                ephemeral=True,
-                delete_after=10
-            )
+        modal = ReportModal(target_user=user, bot=bot)
+        await interaction.response.send_modal(modal)
 
     # Команды для админов/модераторов
     @bot.tree.command(name="report_stats", description="Показать статистику жалоб")
@@ -47,9 +33,9 @@ def setup_report_commands(bot):
         embed.add_field(name="✅ Принято", value=stats['approved'], inline=True)
         embed.add_field(name="❌ Отклонено", value=stats['rejected'], inline=True)
     
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @bot.tree.command(name='report_reset', description="Полностью очистить все жалобы из базы данных")
+    @bot.tree.command(name="report_reset", description="Полностью очистить все жалобы из базы данных")
     async def report_reset_slash(interaction: discord.Interaction):
         allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520, 1436748150688714905, 1436747956186386542]
         user_role_ids = [role.id for role in interaction.user.roles]
@@ -61,11 +47,11 @@ def setup_report_commands(bot):
         
         try:
             deleted_count = reset_all_reports()
-            await interaction.response.send_message(f'✅ Удалено {deleted_count} жалоб из базы данных!', ephemeral=True, delete_after=10)
+            await interaction.response.send_message(f'✅ Удалено {deleted_count} жалоб из базы данных!', ephemeral=True)
         except Exception as e:
-            await interaction.response.send_message(f'❌ Ошибка при очистке базы: {e}', ephemeral=True, delete_after=10)
+            await interaction.response.send_message(f'❌ Ошибка при очистке базы: {e}', ephemeral=True)
 
-    @bot.tree.command(name='report_list', description="Показать список всех жалоб")
+    @bot.tree.command(name="report_list", description="Показать список всех жалоб")
     async def report_list_slash(interaction: discord.Interaction):
         allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520, 1436748150688714905, 1436747956186386542]
         user_role_ids = [role.id for role in interaction.user.roles]
@@ -103,10 +89,10 @@ def setup_report_commands(bot):
                 inline=False
             )
         
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         session.close()
 
-    @bot.tree.command(name='report_help', description="Показать справку по командам жалоб")
+    @bot.tree.command(name="report_help", description="Показать справку по командам жалоб")
     async def report_help_slash(interaction: discord.Interaction):
         allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520, 1436748150688714905, 1436747956186386542]
         user_role_ids = [role.id for role in interaction.user.roles]
@@ -124,7 +110,7 @@ def setup_report_commands(bot):
         
         embed.add_field(
             name="👤 Для всех",
-            value="`/report_user` - Подать жалобу на пользователя",
+            value="`/report` - Подать жалобу на пользователя",
             inline=False
         )
         
@@ -149,6 +135,6 @@ def setup_report_commands(bot):
             inline=False
         )
         
-        embed.set_footer(text="💡 Используйте /report_user @username чтобы подать жалобу")
+        embed.set_footer(text="💡 Используйте /report @username чтобы подать жалобу")
         
         await interaction.response.send_message(embed=embed, ephemeral=True)

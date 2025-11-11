@@ -1,8 +1,6 @@
 import discord
-from discord import app_commands
 from database_feedback.operations import get_feedback_stats, reset_all_feedbacks
 from .pin_service import PinService
-from .views import FeedbackView, FeedbackModerationView
 
 def setup_feedback_commands(bot):
     """Регистрация команд для системы отзывов"""

@@ -34,53 +34,72 @@ class FeedbackModal(discord.ui.Modal, title='Оставить отзыв'):
     
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            rating = int(self.rating_input.value)
-            if rating < 1 or rating > 5:
-                await interaction.response.send_message('❌ Оценка должна быть от 1 до 5!', ephemeral=True)
-                return
-        except ValueError:
-            await interaction.response.send_message('❌ Введите корректное число для оценки!', ephemeral=True)
-            return
+            print(f"🔍 [FEEDBACK] Модалка отправлена пользователем {interaction.user}")
         
-        # Сохраняем в базу данных
-        feedback = create_feedback(
-            user_id=str(interaction.user.id),
-            user_name=interaction.user.display_name,
-            title=self.title_input.value,
-            message=self.message_input.value,
-            rating=rating
-        )
-        
-        # Отправляем в канал модерации
-        mod_channel = self.bot.get_channel(FEEDBACK_CHANNEL_ID)
-        if mod_channel:
-            from .views import FeedbackModerationView
-            
-            embed = discord.Embed(
-                title=f"📝 {self.title_input.value}",
-                description=self.message_input.value,
-                color=0xf39c12,
-                timestamp=datetime.now()
+            # Сохраняем в базу данных
+            feedback = create_feedback(
+                user_id=interaction.user.id,
+                user_name=interaction.user.display_name,
+                title=self.title_input.value,
+                message=self.message_input.value,
+                rating=int(self.rating_input.value)
             )
-            embed.add_field(name="⭐ Оценка", value="★" * rating + "☆" * (5 - rating), inline=True)
-            embed.add_field(name="📊 Статус", value="⏳ Ожидание", inline=True)
-            embed.add_field(name="👤 Автор", value=f"<@{interaction.user.id}>`)", inline=True)
-            embed.set_footer(text=f"ID: {feedback.id} • Ожидание модерации")
+            print(f"🔍 [FEEDBACK] Отзыв сохранен с ID: {feedback.id}")
+            print(f"🔍 [FEEDBACK MODAL] Создан отзыв с ID: {feedback.id}")
+            print(f"🔍 [FEEDBACK MODAL] Создаем View с feedback_id: {feedback.id}")
+        
+            # Отправляем в канал модерации
+            print(f"🔍 [FEEDBACK] Ищем канал модерации ID: {FEEDBACK_CHANNEL_ID}")
+            mod_channel = self.bot.get_channel(FEEDBACK_CHANNEL_ID)
+            print(f"🔍 [FEEDBACK] Найденный канал: {mod_channel}")
+        
+            if mod_channel:
+                print(f"🔍 [FEEDBACK] Канал найден: {mod_channel.name}")
             
-            view = FeedbackModerationView(feedback.id, self.channel, self.bot)
-            await mod_channel.send(embed=embed, view=view)
+                from .views import FeedbackModerationView
+                embed = discord.Embed(
+                    title=f"📝 {feedback.title}",
+                    description=feedback.message,
+                    color=0xf39c12,
+                    timestamp=datetime.now()
+                )
+                embed.add_field(name="⭐ Оценка", value="★" * feedback.rating + "☆" * (5 - feedback.rating), inline=True)
+                embed.add_field(name="👤 Автор", value=f"{interaction.user.mention}", inline=True)
+                embed.set_footer(text=f"ID: {feedback.id} • Ожидание модерации")
             
-            # Обновляем закрепленное сообщение
-            await self.pin_service.create_or_update_pinned_message(self.channel)
-            
+                view = FeedbackModerationView(feedback.id, self.bot)
+                await mod_channel.send(embed=embed, view=view)
+                print(f"🔍 [FEEDBACK] Сообщение отправлено в канал модерации")
+            else:
+                print(f"❌ [FEEDBACK] Канал не найден! ID: {FEEDBACK_CHANNEL_ID}")
+                await interaction.response.send_message(
+                    "❌ Канал модерации не настроен. Сообщите администратору.",
+                    ephemeral=True
+                )
+                return
+        
+            # Обновляем закрепленное сообщение (создаем PinService внутри)
+            try:
+                from .pin_service import PinService
+                pin_service = PinService(self.bot)
+                await pin_service.create_or_update_pinned_message(interaction.channel)
+                print(f"🔍 [FEEDBACK] Закрепленное сообщение обновлено")
+            except Exception as e:
+                print(f"⚠️ [FEEDBACK] Не удалось обновить закрепленное сообщение: {e}")
+        
             await interaction.response.send_message(
-                '✅ Ваш отзыв отправлен на модерацию! Закрепленное сообщение обновлено.', 
+                f"✅ Ваш отзыв **{self.title_input.value}** отправлен на модерацию!",
                 ephemeral=True,
                 delete_after=10
             )
-        else:
+        
+        except Exception as e:
+            print(f"❌ [FEEDBACK] Ошибка: {e}")
+            import traceback
+            traceback.print_exc()
+        
             await interaction.response.send_message(
-                '❌ Ошибка при отправке отзыва. Канал модерации не найден.', 
+                "❌ Ошибка при отправке отзыва",
                 ephemeral=True,
                 delete_after=10
             )
