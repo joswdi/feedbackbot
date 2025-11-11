@@ -6,10 +6,6 @@ from .views import FeedbackView, FeedbackModerationView
 
 def setup_feedback_commands(bot):
     """Регистрация команд для системы отзывов"""
-    
-    # Регистрируем персистентные View для фидбека
-    bot.add_view(FeedbackView(channel=None, pin_service=None))
-    bot.add_view(FeedbackModerationView(feedback_id=0, original_channel=None, bot=bot))
 
     @bot.tree.command(name="feedback_setup", description="Запустите систему сбора отзывов (для модераторов)")
     async def feedback_setup_slash(interaction: discord.Interaction):

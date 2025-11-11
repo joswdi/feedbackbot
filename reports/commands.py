@@ -5,8 +5,6 @@ from database_reports.operations import get_report_stats, reset_all_reports
 
 def setup_report_commands(bot):
     """Регистрация команд для системы жалоб"""
-    from .views import ReportModerationView
-    bot.add_view(ReportModerationView(report_id=0, bot=bot, target_user_id=0, target_user_name=""))
 
     # Основная команда для подачи жалобы
     @bot.tree.command(name="report_user", description="Подать жалобу")

@@ -26,6 +26,15 @@ bot = commands.Bot(
 async def setup_hook():
     """Синхронизация команд при запуске"""
     print("🔄 Начало синхронизации команд...")
+
+    from feedback.views import FeedbackView, FeedbackModerationView
+    from reports.views import ReportModerationView
+    
+    bot.add_view(FeedbackView(channel=None, pin_service=None))
+    bot.add_view(FeedbackModerationView(feedback_id=0, original_channel=None, bot=bot))
+    bot.add_view(ReportModerationView(report_id=0, bot=bot, target_user_id=0, target_user_name=""))
+    
+    print("✅ Персистентные View зарегистрированы")
     
     try:
         # Проверяем какие команды зарегистрированы
