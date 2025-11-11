@@ -1,6 +1,6 @@
 import discord
 from datetime import datetime
-from database.operations import update_feedback_status, delete_feedback, get_feedback_by_id
+from database_feedback.operations import update_feedback_status
 from config import APPROVED_CHANNEL_ID
 from .modals import FeedbackModal
 

@@ -1,18 +1,18 @@
 from sqlalchemy import func, create_engine
 from sqlalchemy.orm import sessionmaker
 from .models import Feedback, Base
-from config import DATABASE_URL
+from config import DATABASE_FEEDBACK_URL
 
 # Добавляем функцию init_db
 def init_db():
     """Инициализация базы данных"""
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(DATABASE_FEEDBACK_URL)
     Base.metadata.create_all(engine)
     print("✅ База данных инициализирована")
     return engine
 
 # Создаем движок и фабрику сессий
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_FEEDBACK_URL)
 SessionLocal = sessionmaker(bind=engine)
 
 def get_session():

@@ -1,6 +1,5 @@
 import discord
-from discord.ext import commands
-from database.operations import get_feedback_stats, reset_all_feedbacks
+from database_feedback.operations import get_feedback_stats, reset_all_feedbacks
 from .pin_service import PinService
 
 def setup_feedback_commands(bot):
@@ -9,6 +8,14 @@ def setup_feedback_commands(bot):
     @bot.tree.command(name="feedback_setup", description="Запустите систему сбора отзывов(в крайних случаях)")
     async def feedback_setup_slash(interaction: discord.Interaction):
         pin_service = PinService(bot)
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        user_role_ids = [role.id for role in interaction.user.roles]
+        has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
+    
+        if not has_allowed_role:
+            await interaction.response.send_message("❌ Недостаточно прав!", ephemeral=True)
+            return
+    
         message = await pin_service.create_or_update_pinned_message(interaction.channel)
         await interaction.response.send_message(
             f'✅ Закрепленное сообщение для отзывов создано! (ID: {message.id})',
@@ -19,6 +26,13 @@ def setup_feedback_commands(bot):
     @bot.tree.command(name="feedback_stats", description="Показать статистику отзывов")
     async def feedback_stats_slash(interaction: discord.Interaction):
         stats = get_feedback_stats()
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        user_role_ids = [role.id for role in interaction.user.roles]
+        has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
+    
+        if not has_allowed_role:
+            await interaction.response.send_message("❌ Недостаточно прав!", ephemeral=True)
+            return
     
         embed = discord.Embed(title="📊 Статистика отзывов", color=0x9b59b6)
         embed.add_field(name="📈 Всего отзывов", value=stats['total'], inline=True)
@@ -34,11 +48,27 @@ def setup_feedback_commands(bot):
     @bot.tree.command(name="feedback_update", description="Обновить закреплённое сообщение с отзывами")
     async def feedback_update_slash(interaction: discord.Interaction):
         pin_service = PinService(bot)
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        user_role_ids = [role.id for role in interaction.user.roles]
+        has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
+    
+        if not has_allowed_role:
+            await interaction.response.send_message("❌ Недостаточно прав!", ephemeral=True)
+            return
+        
         await pin_service.create_or_update_pinned_message(interaction.channel)
         await interaction.response.send_message('✅ Закрепленное сообщение обновлено!', ephemeral=True, delete_after=10)
     
     @bot.tree.command(name="feedback_cleanup", description="Очистить старые закрепленные сообщения")
     async def feedback_cleanup_slash(interaction: discord.Interaction):
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        user_role_ids = [role.id for role in interaction.user.roles]
+        has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
+    
+        if not has_allowed_role:
+            await interaction.response.send_message("❌ Недостаточно прав!", ephemeral=True)
+            return
+        
         try:
             pins = await interaction.channel.pins()
             deleted_count = 0
@@ -56,6 +86,14 @@ def setup_feedback_commands(bot):
 
     @bot.tree.command(name='feedback_reset', description="Полностью очистить все отзывы из базы данных")
     async def feedback_reset_slash(interaction: discord.Interaction):
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        user_role_ids = [role.id for role in interaction.user.roles]
+        has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
+    
+        if not has_allowed_role:
+            await interaction.response.send_message("❌ Недостаточно прав!", ephemeral=True)
+            return
+        
         try:
             deleted_count = reset_all_feedbacks()
             await interaction.response.send_message(f'✅ Удалено {deleted_count} отзывов из базы данных!', ephemeral=True, delete_after=10)
@@ -64,6 +102,14 @@ def setup_feedback_commands(bot):
 
     @bot.tree.command(name='feedback_help', description="Показать список доступных команд")
     async def help_command_slash(interaction: discord.Interaction):
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        user_role_ids = [role.id for role in interaction.user.roles]
+        has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
+    
+        if not has_allowed_role:
+            await interaction.response.send_message("❌ Недостаточно прав!", ephemeral=True)
+            return
+        
         embed = discord.Embed(
             title="📋 Доступные команды",
             description="Список всех команд бота",

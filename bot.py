@@ -1,13 +1,16 @@
 import discord
 from discord.ext import commands
 from config import BOT_TOKEN, COMMAND_PREFIX
-from database.operations import init_db
+from database_feedback.operations import init_db as init_feedback_db
+from database_reports.operations import init_db as init_reports_db
 from feedback.commands import setup_feedback_commands
+from reports.commands import setup_report_commands
 
 print("🚀 Инициализация бота...")
 
-# Инициализация базы данных
-init_db()
+# Инициализация обеих баз данных
+init_feedback_db()  # База для отзывов
+init_reports_db()   # База для жалоб
 
 # Настройка бота
 intents = discord.Intents.default()
@@ -37,6 +40,7 @@ async def setup_hook():
 
 # Регистрация команд
 setup_feedback_commands(bot)
+setup_report_commands(bot)  # ← ДОБАВЬ ЭТУ СТРОКУ!
 
 @bot.event
 async def on_ready():

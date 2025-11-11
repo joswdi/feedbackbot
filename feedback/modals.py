@@ -1,6 +1,6 @@
 import discord
 from datetime import datetime
-from database.operations import create_feedback
+from database_feedback.operations import create_feedback
 from config import FEEDBACK_CHANNEL_ID
 
 class FeedbackModal(discord.ui.Modal, title='Оставить отзыв'):
@@ -64,7 +64,7 @@ class FeedbackModal(discord.ui.Modal, title='Оставить отзыв'):
             )
             embed.add_field(name="⭐ Оценка", value="★" * rating + "☆" * (5 - rating), inline=True)
             embed.add_field(name="📊 Статус", value="⏳ Ожидание", inline=True)
-            embed.add_field(name="👤 Автор", value=f"{interaction.user.display_name}\n(`{interaction.user.id}`)", inline=True)
+            embed.add_field(name="👤 Автор", value=f"<@{interaction.user.id}>`)", inline=True)
             embed.set_footer(text=f"ID: {feedback.id} • Ожидание модерации")
             
             view = FeedbackModerationView(feedback.id, self.channel, self.bot)
@@ -75,10 +75,12 @@ class FeedbackModal(discord.ui.Modal, title='Оставить отзыв'):
             
             await interaction.response.send_message(
                 '✅ Ваш отзыв отправлен на модерацию! Закрепленное сообщение обновлено.', 
-                ephemeral=True
+                ephemeral=True,
+                delete_after=10
             )
         else:
             await interaction.response.send_message(
                 '❌ Ошибка при отправке отзыва. Канал модерации не найден.', 
-                ephemeral=True
+                ephemeral=True,
+                delete_after=10
             )

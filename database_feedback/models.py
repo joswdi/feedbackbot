@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-from config import DATABASE_URL
+from config import DATABASE_FEEDBACK_URL
 
 Base = declarative_base()
 
@@ -26,7 +26,7 @@ class Feedback(Base):
     REJECTED = 'rejected'
 
 # Создаем engine и сессию
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_FEEDBACK_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_session():
