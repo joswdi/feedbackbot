@@ -16,20 +16,19 @@ class ReportModerationView(discord.ui.View):
         report = update_report_status(self.report_id, 'approved', str(interaction.user.id))
         
         if report:
-            # Обновляем сообщение в канале модерации
+            # Обновляем Embed
             embed = discord.Embed(
-                title="📝 Жалоба ПРИНЯТА",
+                title="✅ Жалоба ПРИНЯТА",
                 description=report.report_description,
-                color=0x2ecc71,
+                color=0x2ecc71,  # зеленый
                 timestamp=datetime.now()
             )
-            embed.add_field(name="👤 От кого", value=f"{interaction.user.mention}", inline=True)
-            embed.add_field(name="👤 На кого", value=f"<@{self.target_user_id}> ({self.target_user_name})", inline=True)
-            embed.add_field(name="👨‍💼 Принял", value=f"{interaction.user.mention}", inline=True)
-            embed.set_footer(text=f"ID: {report.id} • Принято {datetime.now().strftime('%d.%m.%Y %H:%M')}")
+            embed.add_field(name="👤 От кого", value=f"<@{interaction.user.id}>", inline=True)
+            embed.add_field(name="👤 На кого", value=f"<@{self.target_user_id}>", inline=True)
+            embed.add_field(name="👨‍💼 Модератор", value=f"{interaction.user.mention}", inline=True)
+            embed.set_footer(text=f"🆔 ID: {report.id} • Принято {datetime.now().strftime('%d.%m.%Y %H:%M')}")
             
             await interaction.message.edit(embed=embed, view=None)
-            
             await interaction.response.send_message('✅ Жалоба принята!', ephemeral=True, delete_after=10)
     
     @discord.ui.button(label='Отклонить', style=discord.ButtonStyle.danger, emoji='❌', custom_id='reject_report')
@@ -38,18 +37,17 @@ class ReportModerationView(discord.ui.View):
         report = update_report_status(self.report_id, 'rejected', str(interaction.user.id))
         
         if report:
-            # Обновляем сообщение
+            # Обновляем Embed
             embed = discord.Embed(
-                title="📝 Жалоба ОТКЛОНЕНА",
+                title="❌ Жалоба ОТКЛОНЕНА",
                 description=report.report_description,
-                color=0xe74c3c,
+                color=0xe74c3c,  # красный
                 timestamp=datetime.now()
             )
-            embed.add_field(name="👤 От кого", value=f"{interaction.user.mention}", inline=True)
-            embed.add_field(name="👤 На кого", value=f"<@{self.target_user_id}> ({self.target_user_name})", inline=True)
-            embed.add_field(name="👨‍💼 Отклонил", value=f"{interaction.user.mention}", inline=True)
-            embed.set_footer(text=f"ID: {report.id} • Отклонено {datetime.now().strftime('%d.%m.%Y %H:%M')}")
+            embed.add_field(name="👤 От кого", value=f"<@{interaction.user.id}>", inline=True)
+            embed.add_field(name="👤 На кого", value=f"<@{self.target_user_id}>", inline=True)
+            embed.add_field(name="👨‍💼 Модератор", value=f"{interaction.user.mention}", inline=True)
+            embed.set_footer(text=f"🆔 ID: {report.id} • Отклонено {datetime.now().strftime('%d.%m.%Y %H:%M')}")
             
             await interaction.message.edit(embed=embed, view=None)
-            
             await interaction.response.send_message('❌ Жалоба отклонена!', ephemeral=True, delete_after=10)

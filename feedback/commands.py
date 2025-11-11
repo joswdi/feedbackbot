@@ -8,7 +8,7 @@ def setup_feedback_commands(bot):
     @bot.tree.command(name="feedback_setup", description="Запустите систему сбора отзывов(в крайних случаях)")
     async def feedback_setup_slash(interaction: discord.Interaction):
         pin_service = PinService(bot)
-        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520, 1436748150688714905, 1436747956186386542]
         user_role_ids = [role.id for role in interaction.user.roles]
         has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
     
@@ -26,7 +26,7 @@ def setup_feedback_commands(bot):
     @bot.tree.command(name="feedback_stats", description="Показать статистику отзывов")
     async def feedback_stats_slash(interaction: discord.Interaction):
         stats = get_feedback_stats()
-        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520, 1436748150688714905, 1436747956186386542]
         user_role_ids = [role.id for role in interaction.user.roles]
         has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
     
@@ -48,7 +48,7 @@ def setup_feedback_commands(bot):
     @bot.tree.command(name="feedback_update", description="Обновить закреплённое сообщение с отзывами")
     async def feedback_update_slash(interaction: discord.Interaction):
         pin_service = PinService(bot)
-        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520, 1436748150688714905, 1436747956186386542]
         user_role_ids = [role.id for role in interaction.user.roles]
         has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
     
@@ -61,7 +61,7 @@ def setup_feedback_commands(bot):
     
     @bot.tree.command(name="feedback_cleanup", description="Очистить старые закрепленные сообщения")
     async def feedback_cleanup_slash(interaction: discord.Interaction):
-        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520, 1436748150688714905, 1436747956186386542]
         user_role_ids = [role.id for role in interaction.user.roles]
         has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
     
@@ -86,7 +86,7 @@ def setup_feedback_commands(bot):
 
     @bot.tree.command(name='feedback_reset', description="Полностью очистить все отзывы из базы данных")
     async def feedback_reset_slash(interaction: discord.Interaction):
-        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520, 1436748150688714905, 1436747956186386542]
         user_role_ids = [role.id for role in interaction.user.roles]
         has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
     
@@ -102,7 +102,7 @@ def setup_feedback_commands(bot):
 
     @bot.tree.command(name='feedback_help', description="Показать список доступных команд")
     async def help_command_slash(interaction: discord.Interaction):
-        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520]
+        allowed_role_ids = [1436746949582786581, 1436748986265374873, 1436746590911074520, 1436748150688714905, 1436747956186386542]
         user_role_ids = [role.id for role in interaction.user.roles]
         has_allowed_role = any(role_id in user_role_ids for role_id in allowed_role_ids)
     

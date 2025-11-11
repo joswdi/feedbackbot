@@ -8,7 +8,7 @@ def init_db():
     """Инициализация базы данных"""
     engine = create_engine(DATABASE_REPORTS_URL)
     Base.metadata.create_all(engine)
-    print("✅ База данных инициализирована")
+    print("✅ База данных reports пересоздана с новой структурой")
     return engine
 
 # Создаем движок и фабрику сессий
@@ -46,22 +46,16 @@ def get_report_stats():
     session = get_session()
     try:
         total = session.query(Report).count()
-        pending = session.query(Report).filter(Report.status == 'pending').count()
-        approved = session.query(Report).filter(Report.status == 'approved').count()
-        rejected = session.query(Report).filter(Report.status == 'rejected').count()
+        pending = session.query(Report).filter(Report.status == Report.PENDING).count()
+        approved = session.query(Report).filter(Report.status == Report.APPROVED).count()
+        rejected = session.query(Report).filter(Report.status == Report.REJECTED).count()
         
-        # Средняя оценка только для принятых жалоб
-        avg_rating_result = session.query(func.avg(Report.rating))\
-            .filter(Report.status == 'approved')\
-            .scalar()
-        avg_rating = float(avg_rating_result) if avg_rating_result else 0.0
-        
+        # Для жалоб нет рейтинга, убираем эту часть
         return {
             'total': total,
             'pending': pending,
             'approved': approved,
-            'rejected': rejected,
-            'avg_rating': round(avg_rating, 2)
+            'rejected': rejected
         }
     finally:
         session.close()

@@ -5,9 +5,9 @@ from config import REPORT_CHANNEL_ID
 from .views import ReportModerationView
 
 class ReportModal(discord.ui.Modal, title="Подать жалобу"):
-    def __init__(self, user: discord.User, bot):
+    def __init__(self, target_user: discord.User, bot):
         super().__init__(timeout=300)
-        self.target_user = user
+        self.target_user = target_user
         self.bot = bot
         
     report_description_input = discord.ui.TextInput(
@@ -19,7 +19,7 @@ class ReportModal(discord.ui.Modal, title="Подать жалобу"):
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            print(f"🔍 [DEBUG] Начало обработки жалобы...")
+            print(f"🔍 [DEBUG] Модалка отправлена пользователем {interaction.user}")
             
             # Сохраняем в базу данных
             report = create_report(
@@ -33,22 +33,18 @@ class ReportModal(discord.ui.Modal, title="Подать жалобу"):
             print(f"🔍 [DEBUG] Жалоба сохранена с ID: {report.id}")
             
             # Отправляем в канал модерации
-            print(f"🔍 [DEBUG] ID канала модерации: {REPORT_CHANNEL_ID}")
-            mod_channel = self.bot.get_channel(int(REPORT_CHANNEL_ID))
-            print(f"🔍 [DEBUG] Найденный канал: {mod_channel}")
-            
+            mod_channel = self.bot.get_channel(REPORT_CHANNEL_ID)
             if mod_channel:
-                print(f"🔍 [DEBUG] Создаем embed и view...")
-                
                 embed = discord.Embed(
                     title="📝 Новая жалоба",
                     description=self.report_description_input.value,
-                    color=0xf39c12,
+                    color=0xf39c12,  # оранжевый цвет для ожидания
                     timestamp=datetime.now()
                 )
                 embed.add_field(name="👤 От кого", value=f"{interaction.user.mention}", inline=True)
                 embed.add_field(name="👤 На кого", value=f"{self.target_user.mention}", inline=True)
-                embed.set_footer(text=f"ID: {report.id} • Ожидание модерации")
+                embed.add_field(name="🆔 ID жалобы", value=f"`{report.id}`", inline=True)
+                embed.set_footer(text="⏳ Ожидание модерации")
                 
                 view = ReportModerationView(
                    report_id=report.id,
@@ -57,28 +53,22 @@ class ReportModal(discord.ui.Modal, title="Подать жалобу"):
                    target_user_name=self.target_user.display_name
                 )
                 
-                print(f"🔍 [DEBUG] Пытаемся отправить сообщение в канал...")
-                message = await mod_channel.send(embed=embed, view=view)
-                print(f"🔍 [DEBUG] Сообщение отправлено! ID: {message.id}")
-            else:
-                print(f"❌ [ERROR] Канал не найден! ID: {REPORT_CHANNEL_ID}")
+                await mod_channel.send(embed=embed, view=view)
+                print(f"🔍 [DEBUG] Сообщение отправлено в канал модерации")
             
-            # Используем followup.send() вместо response.send_message()
-            await interaction.followup.send(
+            # Отправляем подтверждение пользователю
+            await interaction.response.send_message(
                 f"✅ Ваша жалоба на {self.target_user.mention} отправлена на модерацию!",
-                ephemeral=True,
-                delete_after=10
+                ephemeral=False
             )
-            print(f"🔍 [DEBUG] Ответ пользователю отправлен")
             
         except Exception as e:
             print(f"❌ [ERROR] Ошибка в модалке: {e}")
             import traceback
             traceback.print_exc()
             
-            # Для ошибок тоже используем followup
-            await interaction.followup.send(
-                "❌ Произошла ошибка при отправке жалобы",
+            await interaction.response.send_message(
+                "❌ Произошла ошибка при отправке жалобы. Попробуйте позже.",
                 ephemeral=True,
                 delete_after=10
             )

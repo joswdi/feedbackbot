@@ -9,8 +9,8 @@ from reports.commands import setup_report_commands
 print("🚀 Инициализация бота...")
 
 # Инициализация обеих баз данных
-init_feedback_db()  # База для отзывов
-init_reports_db()   # База для жалоб
+init_feedback_db()
+init_reports_db()
 
 # Настройка бота
 intents = discord.Intents.default()
@@ -28,19 +28,27 @@ async def setup_hook():
     print("🔄 Начало синхронизации команд...")
     
     try:
-        # Синхронизация для всех серверов (глобально)
+        # Проверяем какие команды зарегистрированы
+        print(f"🔍 Зарегистрировано команд: {len(bot.tree.get_commands())}")
+        for cmd in bot.tree.get_commands():
+            print(f"   - {cmd.name}")
+        
+        # Синхронизация
+        print("🔄 Синхронизация с Discord...")
         synced = await bot.tree.sync()
-        print(f'✅ Глобально синхронизировано {len(synced)} команд')
+        print(f'✅ Синхронизировано {len(synced)} команд')
         
         for cmd in synced:
             print(f'   - /{cmd.name}')
             
     except Exception as e:
         print(f'❌ Ошибка синхронизации: {e}')
+        import traceback
+        traceback.print_exc()
 
 # Регистрация команд
 setup_feedback_commands(bot)
-setup_report_commands(bot)  # ← ДОБАВЬ ЭТУ СТРОКУ!
+setup_report_commands(bot)
 
 @bot.event
 async def on_ready():

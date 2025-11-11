@@ -1,39 +1,24 @@
-from sqlalchemy import Column, Integer, String, DateTime, create_engine
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-from config import DATABASE_REPORTS_URL
 
 Base = declarative_base()
 
 class Report(Base):
     __tablename__ = 'reports'
     
-    id = Column(Integer, primary_key=True)
-    user_id = Column(String(50), nullable=False)
-    user_name = Column(String(100), nullable=False)
-    target_user_id = Column(String, nullable=False) 
-    target_user_name = Column(String, nullable=False) 
-    report_description = Column(String(200), nullable=False)
-    status = Column(String(20), default='pending')  # pending, approved, rejected
-    created_at = Column(DateTime, default=datetime.utcnow)
-    moderated_by = Column(String(50), nullable=True)
-    moderated_at = Column(DateTime, nullable=True)
-    
-    # Статусы как константы класса
+    # Статусы
     PENDING = 'pending'
     APPROVED = 'approved'
     REJECTED = 'rejected'
-
-# Создаем engine и сессию
-engine = create_engine(DATABASE_REPORTS_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-def get_session():
-    """Получить сессию базы данных"""
-    return SessionLocal()
-
-def init_db():
-    """Инициализация базы данных - создание таблиц"""
-    Base.metadata.create_all(bind=engine)
-    print("✅ База данных SQLAlchemy инициализирована")
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, nullable=False)
+    user_name = Column(String, nullable=False)
+    target_user_id = Column(String, nullable=False)
+    target_user_name = Column(String, nullable=False)
+    report_description = Column(String, nullable=False)
+    status = Column(String, default=PENDING)
+    moderated_by = Column(String, nullable=True)
+    moderated_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.now)
