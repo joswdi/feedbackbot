@@ -12,6 +12,8 @@ class Report(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(String(50), nullable=False)
     user_name = Column(String(100), nullable=False)
+    target_user_id = Column(String, nullable=False) 
+    target_user_name = Column(String, nullable=False) 
     report_description = Column(String(200), nullable=False)
     status = Column(String(20), default='pending')  # pending, approved, rejected
     created_at = Column(DateTime, default=datetime.utcnow)

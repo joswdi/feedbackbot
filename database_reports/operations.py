@@ -19,14 +19,17 @@ def get_session():
     """Получить сессию базы данных"""
     return SessionLocal()
 
-def create_report(user_id, user_name, report_description):
+def create_report(user_id, user_name, target_user_id, target_user_name, report_description):
     """Создание новой жалобы"""
     session = get_session()
     try:
         report = Report(
             user_id=user_id,
             user_name=user_name,
-            report_discription=report_description
+            target_user_id=target_user_id,
+            target_user_name=target_user_name,
+            report_discription=report_description,
+            status=Report.PENDING
         )
         session.add(report)
         session.commit()
